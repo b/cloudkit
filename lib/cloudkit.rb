@@ -8,6 +8,7 @@ require 'time'
 require 'uuid'
 require 'rack'
 require 'rack/config'
+require 'right_aws'
 require 'oauth'
 require 'oauth/consumer'
 require 'oauth/request_proxy/rack_request'
@@ -19,6 +20,7 @@ require 'cloudkit/store/adapter'
 require 'cloudkit/store/extraction_view'
 require 'cloudkit/store/response'
 require 'cloudkit/store/response_helpers'
+require 'cloudkit/store/simple_db_adapter'
 require 'cloudkit/store/sql_adapter'
 require 'cloudkit/store'
 require 'cloudkit/flash_session'
@@ -35,7 +37,7 @@ require 'cloudkit/user_store'
 include CloudKit::Constants
 
 module CloudKit
-  VERSION = '0.10.1'
+  VERSION = '0.11.0'
 end
 
 class Object

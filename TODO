@@ -1,4 +1,5 @@
 1.0
+- simpledb adapter
 - openid sreg
 - oauth token management
 - oauth consumer registration
@@ -9,6 +10,7 @@
 - custom templates for openid / oauth
 
 Backlog
+- alter routing to use sinatra::base
 - batch updates (post, put, delete)
 - expect header/100-continue
 - deployable gem + admin app
