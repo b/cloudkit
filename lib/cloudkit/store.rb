@@ -194,26 +194,13 @@ module CloudKit
     # Return all documents and their associated metadata for the given
     # collection URI.
     def resolved_resource_collection(uri, options)
-      result = @db[CLOUDKIT_STORE].
-        filter(options.excluding(:offset, :limit).merge(:deleted => false)).
-        filter(:collection_reference => collection_uri_fragment(uri)).
-        filter('resource_reference = uri').
-        reverse_order(:id)
-      bundle_resolved_collection_result(uri, options, result)
+      @db.resolved_resource_collection(uri, options)
     end
 
     # Return the resource for the given URI. Return 404 if not found or if
     # protected and unauthorized, 410 if authorized but deleted.
     def resource(uri, options)
-      result = @db[CLOUDKIT_STORE].
-        select(:content, :etag, :last_modified, :deleted).
-        filter(options.merge!(:uri => uri))
-      if result.any?
-        result = result.first
-        return status_410 if result[:deleted]
-        return response(200, result[:content], result[:etag], result[:last_modified])
-      end
-      status_404
+      @db.resource(uri, options)
     end
 
     # Return a collection of URIs for all versions of a resource including the
@@ -226,26 +213,12 @@ module CloudKit
     # resource including the current version. Sorted by Last-Modified date in
     # descending order.
     def resolved_version_collection(uri, options)
-      found = @db[CLOUDKIT_STORE].
-        select(:uri).
-        filter(options.excluding(:offset, :limit).merge(
-          :uri => current_resource_uri(uri)))
-      return status_404 unless found.any?
-      result = @db[CLOUDKIT_STORE].
-        filter(:resource_reference => current_resource_uri(uri)).
-        filter(options.excluding(:offset, :limit).merge(:deleted => false)).
-        reverse_order(:id)
-      bundle_resolved_collection_result(uri, options, result)
+      @db.resolved_version_collection(uri, options)
     end
 
     # Return a specific version of a resource.
     def resource_version(uri, options)
-      result = @db[CLOUDKIT_STORE].
-        select(:content, :etag, :last_modified).
-        filter(options.merge(:uri => uri))
-      return status_404 unless result.any?
-      result = result.first
-      response(200, result[:content], result[:etag], result[:last_modified])
+      @db.resource_version(uri, options)
     end
 
     # Return a list of URIs for all resources matching the list of key value
@@ -298,32 +271,6 @@ module CloudKit
         return json_meta_response(200, uri, etag, last_modified)
       end
       status_404
-    end
-
-    # Bundle a collection of results as a list of documents and the associated
-    # metadata (last_modified, uri, etag) that would have accompanied a response
-    # to their singular request.
-    def bundle_resolved_collection_result(uri, options, result)
-      total  = result.count
-      offset = options[:offset].try(:to_i) || 0
-      max    = options[:limit] ? offset + options[:limit].to_i : total
-      list   = result.all[offset...max]
-      json   = resource_list(list, total, offset)
-      last_modified = result.first[:last_modified] if result.any?
-      response(200, json, build_etag(json), last_modified)
-    end
-
-    # Generate a JSON document list.
-    def resource_list(list, total, offset)
-      results = []
-      list.each do |resource|
-        results << {
-          :uri           => resource[:uri],
-          :etag          => resource[:etag],
-          :last_modified => resource[:last_modified],
-          :document      => resource[:content]}
-      end
-      JSON.generate(:total => total, :offset => offset, :documents => results)
     end
 
     # Returns true if the collection type represents a view.
