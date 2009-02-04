@@ -56,6 +56,7 @@ Gem::Specification.new do |s|
     lib/cloudkit/templates/request_authorization.erb
     lib/cloudkit/templates/request_token_denied.erb
     lib/cloudkit/user_store.rb
+    lib/cloudkit/uri_helpers.rb
     lib/cloudkit/util.rb
     test/ext_test.rb
     test/flash_session_test.rb
@@ -83,4 +84,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'json', '= 1.1.3'
   s.add_dependency 'sqlite3-ruby', '= 1.2.4'
   s.add_dependency 'right_aws', '~> 1.9'
+  s.add_dependency 'memcache-client', '~> 1.5'
 end

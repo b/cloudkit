@@ -71,4 +71,16 @@ module CloudKit::ResponseHelpers
     "trying to throw a json error message for #{status} #{message}"
     response(status, json_error(message), nil, nil, :cache => false)
   end
+
+  # Generate a JSON URI list.
+  def uri_list(list, total, offset)
+    JSON.generate(:total => total, :offset => offset, :uris => list)
+  end
+
+  # Build an ETag for a collection. ETags are generated on write as an
+  # optimization for GETs. This method is used for collections of resources
+  # where the optimization is not practical.
+  def build_etag(data)
+    MD5::md5(data.to_s).hexdigest
+  end
 end
